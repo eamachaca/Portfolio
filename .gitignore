@@ -36,6 +36,7 @@ Thumbs.db
 # ===========================================================
 /public/reframe/
 /resources/views/theme/
+/config/theme.php
 
 # Contexto para asistentes de IA (local, no versionar)
 /CLAUDE.md

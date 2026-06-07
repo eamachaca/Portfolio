@@ -27,9 +27,11 @@ de ThemeForest creada por su autor original. **No es software libre.**
 Por respeto al trabajo de su autor y porque **no estoy a favor de la piratería**,
 los archivos de la plantilla **no se incluyen en este repositorio**:
 
-- Los assets del theme (`public/reframe/`) y las vistas portadas del template
-  (`resources/views/theme/`) están en `.gitignore`.
+- Solo los **assets crudos** del theme (`public/reframe/`: CSS, JS, fuentes,
+  imágenes) están en `.gitignore`. Esa es la parte licenciada del autor.
 - Se despliegan por separado (scp/rsync), nunca vía este repo público.
+- Las **vistas Blade** (`resources/views/theme/`, con los `@foreach`/mapeo de datos)
+  **sí se versionan**: son código propio; ReFrame solo aporta el diseño estático.
 
 Este proyecto **usa** ReFrame, pero **no lo redistribuye**. Si te gusta la
 plantilla y quieres usarla, **cómprala** directamente al autor:
