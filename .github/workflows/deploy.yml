@@ -1,0 +1,100 @@
+name: Deploy portfolio (production)
+
+# Por ahora solo manual desde la pestana Actions de GitHub.
+# Cuando el VPS este configurado y los secrets cargados, agregar:
+#   push:
+#     branches: [main]
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, bcmath, intl, mysql, redis, gd, zip, curl, opcache
+          tools: composer:v2
+          coverage: none
+
+      - name: composer validate (sanity check, no vendor uploaded)
+        run: composer validate --no-check-publish
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: npm ci + build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Setup SSH key
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      # IMPORTANTE: SIN --delete.
+      # ReFrame (public/reframe/, resources/views/theme/) esta gitignoreado
+      # y vive solo en el VPS, subido aparte por scp. Si usamos --delete,
+      # rsync lo borraria en cada deploy. El mismo cuidado vale para
+      # uploads que el panel admin guarde en storage/app/public/.
+      - name: Rsync code to VPS
+        env:
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          rsync -avz \
+            --exclude='.env' \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='vendor/' \
+            --exclude='node_modules/' \
+            --exclude='storage/logs/*' \
+            --exclude='storage/framework/cache/data/*' \
+            --exclude='storage/framework/sessions/*' \
+            --exclude='storage/framework/views/*' \
+            --exclude='database/database.sqlite' \
+            --exclude='tests/' \
+            --exclude='phpunit.xml' \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            ./ \
+            "$VPS_USER@$VPS_HOST:/var/www/portfolio/"
+
+      - name: "Remote: composer install + migrate + cache + reload php-fpm"
+        env:
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no "$VPS_USER@$VPS_HOST" '
+            set -e
+            cd /var/www/portfolio
+            composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+            php artisan migrate --force
+            php artisan optimize:clear
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan event:cache
+            sudo systemctl reload php8.4-fpm
+            # Activar cuando agreguemos queue worker:
+            # sudo supervisorctl restart portfolio-worker:*
+          '
