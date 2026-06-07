@@ -1,0 +1,41 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+/database/*.sqlite
+/database/*.sqlite-journal
+.phpactor.json
+.phpunit.result.cache
+/.codex
+/.cursor/
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/fonts-manifest.dev.json
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
+_ide_helper.php
+Homestead.json
+Homestead.yaml
+Thumbs.db
+
+# ===========================================================
+# ReFrame - Plantilla de pago de ThemeForest (NO redistribuir)
+# Es trabajo licenciado del autor original. No se versiona ni
+# se sube al repo publico. Se despliega aparte (scp/rsync).
+# Comprala: https://themeforest.net/item/reframe-personal-one-page-portfolio-html-template/33840600
+# ===========================================================
+/public/reframe/
+/resources/views/theme/
+
+# Contexto para asistentes de IA (local, no versionar)
+/CLAUDE.md
