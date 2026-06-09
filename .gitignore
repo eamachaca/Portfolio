@@ -40,3 +40,7 @@ Thumbs.db
 
 # Contexto para asistentes de IA (local, no versionar)
 /CLAUDE.md
+
+# Lista de pendientes efimera (vive en el workspace root, no aca, pero por
+# si acaso alguien la mueve dentro del proyecto)
+/NEXT-STEPS.md

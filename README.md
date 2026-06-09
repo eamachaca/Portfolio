@@ -48,13 +48,18 @@ está en el repositorio. Lo que queda fuera es únicamente el diseño licenciado
 ```bash
 composer install
 npm install
-cp .env.example .env   # configurar SQLite
+cp .env.example .env             # configurar SQLite
 php artisan key:generate
 php artisan migrate
+php artisan storage:link         # symlink para subidas de imágenes
 php artisan make:filament-user   # crear el usuario admin
 npm run build
 php artisan serve
 ```
+
+Filament v5 ya está declarado en `composer.json` y el panel admin está
+registrado en `bootstrap/providers.php` — `composer install` lo deja listo,
+no hace falta correr `filament:install`.
 
 > Nota: el front no se verá completo sin los assets de ReFrame
 > (`public/reframe/`), que no vienen en el repo. Colócalos manualmente tras

@@ -2,23 +2,35 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Project;
+use App\Models\User;
 use App\Support\SampleContent;
 
 class ProjectController extends Controller
 {
     /**
-     * Dedicated page listing every project.
+     * Dedicated page listing every published project.
      */
     public function index()
     {
-        // --- Temporary hardcoded content (renders before DB/admin exist) ---
-        $user = SampleContent::user();
-        $projects = SampleContent::projects();
+        $user = User::query()->first();
 
-        // --- DB-backed version (switch to this once the backOffice is loaded) ---
-        // $user = \App\Models\User::query()->first();
-        // $projects = \App\Models\Project::query()
-        //     ->orderByDesc('featured')->orderBy('sort_order')->latest('published_at')->get();
+        if (! $user) {
+            return view('theme.projects.index', [
+                'user' => SampleContent::user(),
+                'projects' => SampleContent::projects(),
+            ]);
+        }
+
+        $projects = Project::query()
+            ->with('experience')
+            ->where('owner_id', $user->id)
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->orderByDesc('featured')
+            ->orderBy('sort_order')
+            ->latest('published_at')
+            ->get();
 
         return view('theme.projects.index', compact('user', 'projects'));
     }
