@@ -53,7 +53,7 @@ jobs:
           ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
 
       # IMPORTANTE: SIN --delete.
-      # ReFrame (public/reframe/, resources/views/theme/) esta gitignoreado
+      # ReFrame (public/reframe/, resources/views/themes/reframe/) esta gitignoreado
       # y vive solo en el VPS, subido aparte por scp. Si usamos --delete,
       # rsync lo borraria en cada deploy. El mismo cuidado vale para
       # uploads que el panel admin guarde en storage/app/public/.

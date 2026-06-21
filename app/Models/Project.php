@@ -6,10 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
+use Spatie\Translatable\HasTranslations;
 
 class Project extends Model
 {
-    use HasFactory;
+    use HasFactory, HasTranslations;
+
+    public array $translatable = ['title', 'excerpt', 'description'];
 
     public const FEATURED_LIMIT = 3;
 
@@ -42,8 +45,12 @@ class Project extends Model
     protected static function booted(): void
     {
         static::saving(function (Project $project) {
-            if (blank($project->slug) && filled($project->title)) {
-                $project->slug = Str::slug($project->title);
+            if (blank($project->slug)) {
+                $candidate = collect($project->getTranslations('title'))
+                    ->first(fn ($value) => filled($value));
+                if (filled($candidate)) {
+                    $project->slug = Str::slug($candidate);
+                }
             }
         });
 

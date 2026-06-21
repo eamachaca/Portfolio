@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\FaqResource\Pages;
+use App\Filament\Support\LocaleTabs;
 use App\Models\Faq;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -20,20 +21,38 @@ class FaqResource extends Resource
 {
     protected static ?string $model = Faq::class;
 
-    protected static ?string $navigationLabel = 'FAQ';
-
-    protected static ?string $modelLabel = 'FAQ';
-
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-question-mark-circle';
 
     protected static ?int $navigationSort = 5;
 
+    public static function getNavigationLabel(): string
+    {
+        return __('FAQ');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('FAQ');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('FAQ');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('question')->required()->maxLength(255),
-            Textarea::make('answer')->required()->rows(4)->columnSpanFull(),
-            TextInput::make('sort_order')->numeric()->default(0),
+            LocaleTabs::for(fn (string $locale) => [
+                TextInput::make("question.{$locale}")
+                    ->label(__('Question'))
+                    ->maxLength(255),
+                Textarea::make("answer.{$locale}")
+                    ->label(__('Answer'))
+                    ->rows(4)
+                    ->columnSpanFull(),
+            ]),
+            TextInput::make('sort_order')->label(__('Sort order'))->numeric()->default(0),
         ]);
     }
 
@@ -41,8 +60,8 @@ class FaqResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('question')->searchable()->limit(60),
-                TextColumn::make('sort_order')->sortable()->toggleable(),
+                TextColumn::make('question')->label(__('Question'))->searchable()->limit(60),
+                TextColumn::make('sort_order')->label(__('Sort order'))->sortable()->toggleable(),
             ])
             ->defaultSort('sort_order')
             ->recordActions([

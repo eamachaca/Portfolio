@@ -7,10 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
+use Spatie\Translatable\HasTranslations;
 
 class Experience extends Model
 {
-    use HasFactory;
+    use HasFactory, HasTranslations;
+
+    public array $translatable = ['summary'];
 
     protected $fillable = [
         'owner_id',

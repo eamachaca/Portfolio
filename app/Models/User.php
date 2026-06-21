@@ -8,10 +8,38 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Translatable\HasTranslations;
 
 class User extends Authenticatable implements FilamentUser
 {
-    use HasFactory, Notifiable;
+    use HasFactory, HasTranslations, Notifiable;
+
+    public array $translatable = [
+        'headline',
+        'bio',
+        'resume',
+        'hero_title',
+        'hero_copy',
+        'hero_note',
+        'about_heading',
+        'about_body',
+        'strengths_heading',
+        'strengths_intro',
+        'experience_heading',
+        'experience_intro',
+        'education_heading',
+        'portfolio_heading',
+        'portfolio_intro',
+        'skills_heading',
+        'skills_intro',
+        'workstyle_heading',
+        'workstyle_intro',
+        'testimonials_heading',
+        'faq_heading',
+        'blog_heading',
+        'contact_heading',
+        'contact_intro',
+    ];
 
     public function canAccessPanel(Panel $panel): bool
     {
@@ -27,7 +55,31 @@ class User extends Authenticatable implements FilamentUser
         'headline',
         'bio',
         'avatar',
-        'social_links',
+        'resume',
+        'active_locales',
+        'default_locale',
+        'hero_tag',
+        'hero_title',
+        'hero_copy',
+        'hero_note',
+        'about_heading',
+        'about_body',
+        'strengths_heading',
+        'strengths_intro',
+        'experience_heading',
+        'experience_intro',
+        'education_heading',
+        'portfolio_heading',
+        'portfolio_intro',
+        'skills_heading',
+        'skills_intro',
+        'workstyle_heading',
+        'workstyle_intro',
+        'testimonials_heading',
+        'faq_heading',
+        'blog_heading',
+        'contact_heading',
+        'contact_intro',
     ];
 
     protected $hidden = [
@@ -40,8 +92,13 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'social_links' => 'array',
+            'active_locales' => 'array',
         ];
+    }
+
+    public function socialLinks(): HasMany
+    {
+        return $this->hasMany(SocialLink::class)->orderBy('sort_order');
     }
 
     public function projects(): HasMany
@@ -82,5 +139,15 @@ class User extends Authenticatable implements FilamentUser
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class, 'owner_id');
+    }
+
+    public function strengths(): HasMany
+    {
+        return $this->hasMany(Strength::class, 'owner_id')->orderBy('sort_order');
+    }
+
+    public function workStyleItems(): HasMany
+    {
+        return $this->hasMany(WorkStyleItem::class, 'owner_id')->orderBy('sort_order');
     }
 }

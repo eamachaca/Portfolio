@@ -25,7 +25,7 @@ class ViewContactMessage extends ViewRecord
     {
         return [
             Action::make('reply')
-                ->label('Reply by email')
+                ->label(__('Reply by email'))
                 ->icon('heroicon-o-envelope')
                 ->url(fn (ContactMessage $record): string => 'mailto:' . $record->email)
                 ->openUrlInNewTab(),

@@ -25,25 +25,41 @@ class SkillResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    public static function getNavigationLabel(): string
+    {
+        return __('Skills');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Skill');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Skills');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('name')->required()->maxLength(255),
+            TextInput::make('name')->label(__('Name'))->required()->maxLength(255),
             Select::make('category')
+                ->label(__('Category'))
                 ->options([
-                    'Languages' => 'Languages',
-                    'Frameworks' => 'Frameworks',
-                    'Databases' => 'Databases',
-                    'Tools' => 'Tools',
-                    'Cloud' => 'Cloud',
-                    'Methodology' => 'Methodology',
+                    'Languages' => __('Languages'),
+                    'Frameworks' => __('Frameworks'),
+                    'Databases' => __('Databases'),
+                    'Tools' => __('Tools'),
+                    'Cloud' => __('Cloud'),
+                    'Methodology' => __('Methodology'),
                 ])
                 ->searchable()
                 ->allowHtml(false)
                 ->native(false)
-                ->placeholder('Optional — leave empty for ungrouped.')
-                ->helperText('Pills get grouped by category on the front.'),
-            TextInput::make('sort_order')->numeric()->default(0),
+                ->placeholder(__('Optional — leave empty for ungrouped.'))
+                ->helperText(__('Pills get grouped by category on the front.')),
+            TextInput::make('sort_order')->label(__('Sort order'))->numeric()->default(0),
         ]);
     }
 
@@ -51,9 +67,9 @@ class SkillResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('category')->sortable()->placeholder('—'),
-                TextColumn::make('sort_order')->sortable()->toggleable(),
+                TextColumn::make('name')->label(__('Name'))->searchable()->sortable(),
+                TextColumn::make('category')->label(__('Category'))->sortable()->placeholder('—'),
+                TextColumn::make('sort_order')->label(__('Sort order'))->sortable()->toggleable(),
             ])
             ->defaultSort('category')
             ->filters([

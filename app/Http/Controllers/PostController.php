@@ -20,7 +20,7 @@ class PostController extends Controller
             ->latest('published_at')
             ->paginate(9);
 
-        return view('theme.posts.index', compact('user', 'posts'));
+        return view('themes.reframe.posts.index', compact('user', 'posts'));
     }
 
     public function show(Post $post)
@@ -29,6 +29,6 @@ class PostController extends Controller
 
         $user = User::query()->first();
 
-        return view('theme.posts.show', compact('user', 'post'));
+        return view('themes.reframe.posts.show', compact('user', 'post'));
     }
 }

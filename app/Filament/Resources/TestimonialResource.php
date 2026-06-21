@@ -27,34 +27,50 @@ class TestimonialResource extends Resource
 
     protected static ?int $navigationSort = 6;
 
+    public static function getNavigationLabel(): string
+    {
+        return __('Testimonials');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Testimonial');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Testimonials');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('author')->required()->maxLength(255),
-            TextInput::make('role')->maxLength(255),
-            TextInput::make('company')->maxLength(255),
-            Textarea::make('quote')->required()->rows(4)->columnSpanFull(),
+            TextInput::make('author')->label(__('Author'))->required()->maxLength(255),
+            TextInput::make('role')->label(__('Role'))->maxLength(255),
+            TextInput::make('company')->label(__('Company'))->maxLength(255),
+            Textarea::make('quote')->label(__('Quote'))->required()->rows(4)->columnSpanFull(),
             Select::make('source')
-                ->label('Plataforma de origen')
+                ->label(__('Source platform'))
                 ->options([
                     'workana' => 'Workana',
                     'linkedin' => 'LinkedIn',
                     'upwork' => 'Upwork',
-                    'email' => 'Email',
-                    'other' => 'Otro',
+                    'email' => __('Email'),
+                    'other' => __('Other'),
                 ])
                 ->native(false),
             TextInput::make('source_url')
-                ->label('URL del testimonio original')
+                ->label(__('Original testimonial URL'))
                 ->url()
                 ->maxLength(500),
             FileUpload::make('avatar')
+                ->label(__('Avatar'))
                 ->image()
                 ->avatar()
                 ->disk('public')
                 ->directory('testimonials')
                 ->maxSize(1024),
-            TextInput::make('sort_order')->numeric()->default(0),
+            TextInput::make('sort_order')->label(__('Sort order'))->numeric()->default(0),
         ]);
     }
 
@@ -62,10 +78,10 @@ class TestimonialResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make('avatar')->disk('public')->circular(),
-                TextColumn::make('author')->searchable()->sortable(),
-                TextColumn::make('company')->toggleable(),
-                TextColumn::make('sort_order')->sortable()->toggleable(),
+                ImageColumn::make('avatar')->label(__('Avatar'))->disk('public')->circular(),
+                TextColumn::make('author')->label(__('Author'))->searchable()->sortable(),
+                TextColumn::make('company')->label(__('Company'))->toggleable(),
+                TextColumn::make('sort_order')->label(__('Sort order'))->sortable()->toggleable(),
             ])
             ->defaultSort('sort_order')
             ->recordActions([

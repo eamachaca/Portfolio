@@ -6,10 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
+use Spatie\Translatable\HasTranslations;
 
 class Post extends Model
 {
-    use HasFactory;
+    use HasFactory, HasTranslations;
+
+    public array $translatable = ['title', 'excerpt', 'content'];
 
     protected $fillable = [
         'owner_id',
@@ -29,8 +32,12 @@ class Post extends Model
     protected static function booted(): void
     {
         static::saving(function (Post $post) {
-            if (blank($post->slug) && filled($post->title)) {
-                $post->slug = Str::slug($post->title);
+            if (blank($post->slug)) {
+                $candidate = collect($post->getTranslations('title'))
+                    ->first(fn ($value) => filled($value));
+                if (filled($candidate)) {
+                    $post->slug = Str::slug($candidate);
+                }
             }
         });
     }

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ServiceResource\Pages;
+use App\Filament\Support\LocaleTabs;
 use App\Models\Service;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -24,16 +25,39 @@ class ServiceResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
+    public static function getNavigationLabel(): string
+    {
+        return __('Services');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Service');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Services');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('title')->required()->maxLength(255),
-            Textarea::make('description')->rows(4)->columnSpanFull(),
+            LocaleTabs::for(fn (string $locale) => [
+                TextInput::make("title.{$locale}")
+                    ->label(__('Title'))
+                    ->maxLength(255),
+                Textarea::make("description.{$locale}")
+                    ->label(__('Description'))
+                    ->rows(4)
+                    ->columnSpanFull(),
+            ]),
             TextInput::make('icon')
+                ->label(__('Icon'))
                 ->maxLength(255)
                 ->placeholder('ti-package · ti-server · ti-mobile · …')
-                ->helperText('Themify icon class (the ReFrame icon set). Optional.'),
-            TextInput::make('sort_order')->numeric()->default(0),
+                ->helperText(__('Themify icon class (the ReFrame icon set). Optional.')),
+            TextInput::make('sort_order')->label(__('Sort order'))->numeric()->default(0),
         ]);
     }
 
@@ -41,9 +65,9 @@ class ServiceResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('title')->searchable()->sortable(),
-                TextColumn::make('icon')->toggleable()->placeholder('—'),
-                TextColumn::make('sort_order')->sortable()->toggleable(),
+                TextColumn::make('title')->label(__('Title'))->searchable()->sortable(),
+                TextColumn::make('icon')->label(__('Icon'))->toggleable()->placeholder('—'),
+                TextColumn::make('sort_order')->label(__('Sort order'))->sortable()->toggleable(),
             ])
             ->defaultSort('sort_order')
             ->recordActions([

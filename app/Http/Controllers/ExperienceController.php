@@ -22,6 +22,6 @@ class ExperienceController extends Controller
             ->latest('published_at')
             ->get();
 
-        return view('theme.experiences.show', compact('user', 'experience', 'projects'));
+        return view('themes.reframe.experiences.show', compact('user', 'experience', 'projects'));
     }
 }

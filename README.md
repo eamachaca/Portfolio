@@ -30,7 +30,7 @@ los archivos de la plantilla **no se incluyen en este repositorio**:
 - Solo los **assets crudos** del theme (`public/reframe/`: CSS, JS, fuentes,
   imágenes) están en `.gitignore`. Esa es la parte licenciada del autor.
 - Se despliegan por separado (scp/rsync), nunca vía este repo público.
-- Las **vistas Blade** (`resources/views/theme/`, con los `@foreach`/mapeo de datos)
+- Las **vistas Blade** (`resources/views/themes/reframe/`, con los `@foreach`/mapeo de datos)
   **sí se versionan**: son código propio; ReFrame solo aporta el diseño estático.
 
 Este proyecto **usa** ReFrame, pero **no lo redistribuye**. Si te gusta la

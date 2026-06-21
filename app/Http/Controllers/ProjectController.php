@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\User;
-use App\Support\SampleContent;
 
 class ProjectController extends Controller
 {
@@ -13,14 +12,7 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $user = User::query()->first();
-
-        if (! $user) {
-            return view('theme.projects.index', [
-                'user' => SampleContent::user(),
-                'projects' => SampleContent::projects(),
-            ]);
-        }
+        $user = User::query()->firstOrFail();
 
         $projects = Project::query()
             ->with('experience')
@@ -32,6 +24,6 @@ class ProjectController extends Controller
             ->latest('published_at')
             ->get();
 
-        return view('theme.projects.index', compact('user', 'projects'));
+        return view('themes.reframe.projects.index', compact('user', 'projects'));
     }
 }

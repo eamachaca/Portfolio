@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ExperienceResource\Pages;
+use App\Filament\Support\LocaleTabs;
 use App\Models\Experience;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -32,65 +33,96 @@ class ExperienceResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'company';
 
+    public static function getNavigationLabel(): string
+    {
+        return __('Experience');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Experience');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Experiences');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
             TextInput::make('company')
+                ->label(__('Company'))
                 ->required()
                 ->maxLength(255),
             FileUpload::make('logo')
+                ->label(__('Logo'))
                 ->image()
                 ->disk('public')
                 ->directory('experiences/logos')
                 ->maxSize(2048),
-            Textarea::make('summary')
-                ->rows(3)
-                ->columnSpanFull()
-                ->helperText('Optional. Single description shared across all levels of this role. Leave empty if each level has its own.'),
+            LocaleTabs::for(fn (string $locale) => [
+                Textarea::make("summary.{$locale}")
+                    ->label(__('Summary'))
+                    ->rows(3)
+                    ->columnSpanFull()
+                    ->helperText(__('Optional. Single description shared across all levels of this role. Leave empty if each level has its own.')),
+            ], key: 'summary_translations'),
             TagsInput::make('tech_stack')
-                ->placeholder('Add a tech and press Enter')
-                ->helperText('Shared stack across all levels at this company.'),
+                ->label(__('Tech stack'))
+                ->placeholder(__('Add a tech and press Enter'))
+                ->helperText(__('Shared stack across all levels at this company.')),
             TextInput::make('sort_order')
+                ->label(__('Sort order'))
                 ->numeric()
                 ->default(0)
-                ->helperText('Lower numbers show first. Use to push current job to the top.'),
+                ->helperText(__('Lower numbers show first. Use to push current job to the top.')),
             Repeater::make('levels')
-                ->label('Levels / promotions')
-                ->helperText('One entry per role at this company. Add another when you got promoted.')
+                ->label(__('Levels / promotions'))
+                ->helperText(__('One entry per role at this company. Add another when you got promoted.'))
                 ->columnSpanFull()
                 ->collapsible()
                 ->minItems(1)
                 ->defaultItems(1)
                 ->reorderable()
-                ->addActionLabel('Add level')
+                ->addActionLabel(__('Add level'))
                 ->itemLabel(fn (array $state): ?string => $state['role'] ?? null)
                 ->schema([
                     TextInput::make('role')
+                        ->label(__('Role'))
                         ->required()
                         ->maxLength(255)
                         ->placeholder('Ssr. Backend Engineer'),
                     DatePicker::make('start_date')
+                        ->label(__('Start date'))
                         ->native(false),
                     DatePicker::make('end_date')
+                        ->label(__('End date'))
                         ->native(false)
-                        ->helperText('Leave empty if currently in this role.'),
+                        ->helperText(__('Leave empty if currently in this role.')),
                     Toggle::make('in_progress')
-                        ->label('Current'),
-                    Textarea::make('description')
-                        ->rows(3)
-                        ->columnSpanFull()
-                        ->helperText('Optional. Description specific to this level.'),
+                        ->label(__('Current')),
+                    LocaleTabs::for(fn (string $locale) => [
+                        Textarea::make("description.{$locale}")
+                            ->label(__('Description'))
+                            ->rows(3)
+                            ->columnSpanFull()
+                            ->helperText(__('Optional. Description specific to this level.')),
+                    ], key: 'description_translations'),
                     Repeater::make('highlights')
-                        ->label('Highlights / bullets')
+                        ->label(__('Highlights / bullets'))
                         ->columnSpanFull()
                         ->reorderable()
                         ->defaultItems(0)
-                        ->addActionLabel('Add bullet')
-                        ->simple(
-                            TextInput::make('text')
-                                ->maxLength(500)
-                                ->placeholder('What you shipped, improved or owned.')
-                        ),
+                        ->addActionLabel(__('Add bullet'))
+                        ->schema([
+                            LocaleTabs::for(fn (string $locale) => [
+                                TextInput::make($locale)
+                                    ->label(__('Bullet (:locale)', ['locale' => $locale]))
+                                    ->maxLength(500)
+                                    ->placeholder(__('What you shipped, improved or owned.')),
+                            ], key: 'highlight_translations'),
+                        ]),
                 ]),
         ]);
     }
@@ -100,18 +132,22 @@ class ExperienceResource extends Resource
         return $table
             ->columns([
                 ImageColumn::make('logo')
+                    ->label(__('Logo'))
                     ->disk('public')
                     ->square(),
                 TextColumn::make('company')
+                    ->label(__('Company'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('levels')
-                    ->label('Levels')
+                    ->label(__('Levels'))
                     ->state(fn (Experience $r): string => (string) count($r->levels ?? [])),
                 TextColumn::make('sort_order')
+                    ->label(__('Sort order'))
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('updated_at')
+                    ->label(__('Updated at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

@@ -13,6 +13,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
+            NetworkSeeder::class,
+            SocialLinkSeeder::class,
             StudySeeder::class,
             ExperienceSeeder::class,
             SkillSeeder::class,
@@ -20,6 +22,8 @@ class DatabaseSeeder extends Seeder
             FaqSeeder::class,
             ProjectSeeder::class,
             TestimonialSeeder::class,
+            StrengthSeeder::class,
+            WorkStyleItemSeeder::class,
         ]);
     }
 }

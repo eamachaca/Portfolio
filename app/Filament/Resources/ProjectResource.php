@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProjectResource\Pages;
+use App\Filament\Support\LocaleTabs;
 use App\Models\Project;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -37,30 +38,51 @@ class ProjectResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'title';
 
+    public static function getNavigationLabel(): string
+    {
+        return __('Projects');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Project');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Projects');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('title')
-                ->required()
-                ->maxLength(255)
-                ->live(onBlur: true),
             TextInput::make('slug')
+                ->label(__('Slug'))
                 ->maxLength(255)
                 ->unique(ignoreRecord: true)
-                ->helperText('Leave empty to auto-generate from title.'),
-            TextInput::make('excerpt')
-                ->maxLength(255)
-                ->helperText('Short one-line tagline shown in cards.'),
-            Textarea::make('description')
-                ->rows(8)
-                ->columnSpanFull(),
+                ->helperText(__('Leave empty to auto-generate from the first available title translation.')),
+            LocaleTabs::for(fn (string $locale) => [
+                TextInput::make("title.{$locale}")
+                    ->label(__('Title'))
+                    ->maxLength(255),
+                TextInput::make("excerpt.{$locale}")
+                    ->label(__('Excerpt'))
+                    ->maxLength(255)
+                    ->helperText(__('Short one-line tagline shown in cards.')),
+                Textarea::make("description.{$locale}")
+                    ->label(__('Description'))
+                    ->rows(8)
+                    ->columnSpanFull(),
+            ]),
             FileUpload::make('cover_image')
+                ->label(__('Cover image'))
                 ->image()
                 ->disk('public')
                 ->directory('projects/covers')
                 ->imageEditor()
                 ->maxSize(4096),
             FileUpload::make('gallery')
+                ->label(__('Gallery'))
                 ->image()
                 ->multiple()
                 ->reorderable()
@@ -68,58 +90,69 @@ class ProjectResource extends Resource
                 ->directory('projects/gallery')
                 ->maxSize(4096),
             TagsInput::make('tech_stack')
-                ->placeholder('Add a tech and press Enter')
+                ->label(__('Tech stack'))
+                ->placeholder(__('Add a tech and press Enter'))
                 ->helperText('Laravel, Filament, MySQL, …'),
             Select::make('experience_id')
-                ->label('Done at (experience)')
+                ->label(__('Done at (experience)'))
                 ->relationship('experience', 'company', fn ($query) => $query->where('owner_id', auth()->id())->orderBy('sort_order'))
                 ->searchable()
                 ->preload()
                 ->nullable()
-                ->helperText('Link this project to one of your work experiences. Leave empty for a personal project — it shows as #Personal on the front.'),
+                ->helperText(__('Link this project to one of your work experiences. Leave empty for a personal project — it shows as #Personal on the front.')),
             Repeater::make('apps')
-                ->label('Apps / components')
-                ->helperText('Use this when one project ships as multiple apps (e.g. web + mobile). Leave empty for single-app projects.')
+                ->label(__('Apps / components'))
+                ->helperText(__('Use this when one project ships as multiple apps (e.g. web + mobile). Leave empty for single-app projects.'))
                 ->columnSpanFull()
                 ->collapsible()
                 ->itemLabel(fn (array $state): ?string => $state['name'] ?? null)
                 ->defaultItems(0)
-                ->addActionLabel('Add app')
+                ->addActionLabel(__('Add app'))
                 ->schema([
                     TextInput::make('name')
+                        ->label(__('Name'))
                         ->required()
                         ->maxLength(255),
                     TextInput::make('platform')
+                        ->label(__('Platform'))
                         ->maxLength(255)
                         ->placeholder('Web · iOS · Android · Backend · …'),
-                    Textarea::make('description')
-                        ->rows(3)
-                        ->columnSpanFull(),
+                    LocaleTabs::for(fn (string $locale) => [
+                        Textarea::make("description.{$locale}")
+                            ->label(__('Description'))
+                            ->rows(3)
+                            ->columnSpanFull(),
+                    ], key: 'app_description_translations'),
                     TagsInput::make('tech_stack')
-                        ->placeholder('Add tech and press Enter'),
+                        ->label(__('Tech stack'))
+                        ->placeholder(__('Add a tech and press Enter')),
                     KeyValue::make('links')
-                        ->keyLabel('Label')
-                        ->valueLabel('URL')
-                        ->addActionLabel('Add link')
+                        ->label(__('Links'))
+                        ->keyLabel(__('Label'))
+                        ->valueLabel(__('URL'))
+                        ->addActionLabel(__('Add link'))
                         ->reorderable()
                         ->helperText('Live, Code, App Store, Play Store, TestFlight, …')
                         ->columnSpanFull(),
                 ]),
             TextInput::make('url')
-                ->label('Live URL')
+                ->label(__('Live URL'))
                 ->url()
                 ->maxLength(255),
             TextInput::make('repo_url')
-                ->label('Repository URL')
+                ->label(__('Repository URL'))
                 ->url()
                 ->maxLength(255),
             Toggle::make('featured')
-                ->helperText('Featured projects show on the home page (top 3). Marking a new one un-features the oldest automatically.'),
+                ->label(__('Featured'))
+                ->helperText(__('Featured projects show on the home page (top 3). Marking a new one un-features the oldest automatically.')),
             TextInput::make('sort_order')
+                ->label(__('Sort order'))
                 ->numeric()
                 ->default(0),
             DateTimePicker::make('published_at')
-                ->helperText('Leave empty to keep as a draft (hidden from the public site).'),
+                ->label(__('Published at'))
+                ->helperText(__('Leave empty to keep as a draft (hidden from the public site).')),
         ]);
     }
 
@@ -128,27 +161,33 @@ class ProjectResource extends Resource
         return $table
             ->columns([
                 ImageColumn::make('cover_image')
+                    ->label(__('Cover image'))
                     ->disk('public')
                     ->square(),
                 TextColumn::make('title')
+                    ->label(__('Title'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('experience.company')
-                    ->label('Done at')
-                    ->placeholder('Personal')
+                    ->label(__('Done at'))
+                    ->placeholder(__('Personal'))
                     ->sortable()
                     ->toggleable(),
                 IconColumn::make('featured')
+                    ->label(__('Featured'))
                     ->boolean()
                     ->sortable(),
                 TextColumn::make('sort_order')
+                    ->label(__('Sort order'))
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('published_at')
+                    ->label(__('Published at'))
                     ->dateTime()
                     ->sortable()
-                    ->placeholder('Draft'),
+                    ->placeholder(__('Draft')),
                 TextColumn::make('updated_at')
+                    ->label(__('Updated at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -156,16 +195,16 @@ class ProjectResource extends Resource
             ->defaultSort('sort_order')
             ->filters([
                 SelectFilter::make('experience_id')
-                    ->label('Experience')
+                    ->label(__('Experience'))
                     ->relationship('experience', 'company', fn ($query) => $query->where('owner_id', auth()->id()))
                     ->preload(),
-                TernaryFilter::make('featured'),
+                TernaryFilter::make('featured')->label(__('Featured')),
                 TernaryFilter::make('published_at')
-                    ->label('Published')
+                    ->label(__('Published'))
                     ->nullable()
-                    ->placeholder('All')
-                    ->trueLabel('Published')
-                    ->falseLabel('Drafts'),
+                    ->placeholder(__('All'))
+                    ->trueLabel(__('Published'))
+                    ->falseLabel(__('Drafts')),
             ])
             ->recordActions([
                 EditAction::make(),

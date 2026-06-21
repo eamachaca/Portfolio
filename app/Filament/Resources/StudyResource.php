@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\StudyResource\Pages;
+use App\Filament\Support\LocaleTabs;
 use App\Models\Study;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -31,34 +32,57 @@ class StudyResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'title';
 
+    public static function getNavigationLabel(): string
+    {
+        return __('Education');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Study');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Studies');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
             TextInput::make('institution')
+                ->label(__('Institution'))
                 ->required()
                 ->maxLength(255),
-            TextInput::make('title')
-                ->label('Degree / Title')
-                ->required()
-                ->maxLength(255),
+            LocaleTabs::for(fn (string $locale) => [
+                TextInput::make("title.{$locale}")
+                    ->label(__('Degree / Title'))
+                    ->maxLength(255),
+                Textarea::make("description.{$locale}")
+                    ->label(__('Description'))
+                    ->rows(4)
+                    ->columnSpanFull(),
+            ]),
             TextInput::make('field')
+                ->label(__('Field'))
                 ->maxLength(255)
-                ->helperText('e.g. Software Engineering, Mathematics.'),
-            Textarea::make('description')
-                ->rows(4)
-                ->columnSpanFull(),
+                ->helperText(__('e.g. Software Engineering, Mathematics.')),
             DatePicker::make('start_date')
+                ->label(__('Start date'))
                 ->native(false),
             DatePicker::make('end_date')
+                ->label(__('End date'))
                 ->native(false)
-                ->helperText('Leave empty if currently in progress.'),
-            Toggle::make('in_progress'),
+                ->helperText(__('Leave empty if currently in progress.')),
+            Toggle::make('in_progress')->label(__('In progress')),
             FileUpload::make('logo')
+                ->label(__('Logo'))
                 ->image()
                 ->disk('public')
                 ->directory('studies/logos')
                 ->maxSize(2048),
             TextInput::make('sort_order')
+                ->label(__('Sort order'))
                 ->numeric()
                 ->default(0),
         ]);
@@ -69,23 +93,30 @@ class StudyResource extends Resource
         return $table
             ->columns([
                 ImageColumn::make('logo')
+                    ->label(__('Logo'))
                     ->disk('public')
                     ->square(),
                 TextColumn::make('institution')
+                    ->label(__('Institution'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('title')
+                    ->label(__('Title'))
                     ->searchable(),
                 TextColumn::make('start_date')
+                    ->label(__('Start date'))
                     ->date()
                     ->sortable(),
                 TextColumn::make('end_date')
+                    ->label(__('End date'))
                     ->date()
                     ->sortable()
                     ->placeholder('—'),
                 IconColumn::make('in_progress')
+                    ->label(__('In progress'))
                     ->boolean(),
                 TextColumn::make('sort_order')
+                    ->label(__('Sort order'))
                     ->sortable()
                     ->toggleable(),
             ])

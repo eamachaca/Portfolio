@@ -18,34 +18,47 @@ class ContactMessageResource extends Resource
 {
     protected static ?string $model = ContactMessage::class;
 
-    protected static ?string $navigationLabel = 'Inbox';
-
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-inbox';
 
     protected static ?int $navigationSort = 7;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('Inbox');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Message');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Messages');
+    }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('email')->searchable()->copyable(),
-                TextColumn::make('phone')->toggleable()->placeholder('—'),
-                TextColumn::make('message')->limit(80)->wrap(),
+                TextColumn::make('name')->label(__('Name'))->searchable()->sortable(),
+                TextColumn::make('email')->label(__('Email'))->searchable()->copyable(),
+                TextColumn::make('phone')->label(__('Phone'))->toggleable()->placeholder('—'),
+                TextColumn::make('message')->label(__('Message'))->limit(80)->wrap(),
                 IconColumn::make('read_at')
-                    ->label('Read')
+                    ->label(__('Read'))
                     ->boolean()
                     ->getStateUsing(fn (ContactMessage $r): bool => $r->read_at !== null),
-                TextColumn::make('created_at')->dateTime()->sortable(),
+                TextColumn::make('created_at')->label(__('Received at'))->dateTime()->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 TernaryFilter::make('read_at')
-                    ->label('Read')
+                    ->label(__('Read'))
                     ->nullable()
-                    ->placeholder('All')
-                    ->trueLabel('Read')
-                    ->falseLabel('Unread'),
+                    ->placeholder(__('All'))
+                    ->trueLabel(__('Read'))
+                    ->falseLabel(__('Unread')),
             ])
             ->recordActions([
                 ViewAction::make(),

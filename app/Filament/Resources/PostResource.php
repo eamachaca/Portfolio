@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PostResource\Pages;
+use App\Filament\Support\LocaleTabs;
 use App\Models\Post;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -24,31 +25,57 @@ class PostResource extends Resource
 {
     protected static ?string $model = Post::class;
 
-    protected static ?string $navigationLabel = 'Blog';
-
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-newspaper';
 
     protected static ?int $navigationSort = 8;
 
+    public static function getNavigationLabel(): string
+    {
+        return __('Blog');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Post');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Posts');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('title')->required()->maxLength(255)->live(onBlur: true),
             TextInput::make('slug')
+                ->label(__('Slug'))
                 ->maxLength(255)
                 ->unique(ignoreRecord: true)
-                ->helperText('Leave empty to auto-generate from title.'),
-            Textarea::make('excerpt')->rows(2)->maxLength(255)->columnSpanFull(),
-            RichEditor::make('content')->columnSpanFull(),
+                ->helperText(__('Leave empty to auto-generate from the first available title translation.')),
+            LocaleTabs::for(fn (string $locale) => [
+                TextInput::make("title.{$locale}")
+                    ->label(__('Title'))
+                    ->maxLength(255),
+                Textarea::make("excerpt.{$locale}")
+                    ->label(__('Excerpt'))
+                    ->rows(2)
+                    ->maxLength(255)
+                    ->columnSpanFull(),
+                RichEditor::make("content.{$locale}")
+                    ->label(__('Content'))
+                    ->columnSpanFull(),
+            ]),
             FileUpload::make('cover_image')
+                ->label(__('Cover image'))
                 ->image()
                 ->disk('public')
                 ->directory('posts/covers')
                 ->imageEditor()
                 ->maxSize(4096),
             DateTimePicker::make('published_at')
-                ->helperText('Leave empty to keep as a draft.'),
-            TextInput::make('sort_order')->numeric()->default(0),
+                ->label(__('Published at'))
+                ->helperText(__('Leave empty to keep as a draft.')),
+            TextInput::make('sort_order')->label(__('Sort order'))->numeric()->default(0),
         ]);
     }
 
@@ -56,10 +83,10 @@ class PostResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make('cover_image')->disk('public')->square(),
-                TextColumn::make('title')->searchable()->sortable(),
-                TextColumn::make('published_at')->dateTime()->sortable()->placeholder('Draft'),
-                TextColumn::make('sort_order')->sortable()->toggleable(),
+                ImageColumn::make('cover_image')->label(__('Cover image'))->disk('public')->square(),
+                TextColumn::make('title')->label(__('Title'))->searchable()->sortable(),
+                TextColumn::make('published_at')->label(__('Published at'))->dateTime()->sortable()->placeholder(__('Draft')),
+                TextColumn::make('sort_order')->label(__('Sort order'))->sortable()->toggleable(),
             ])
             ->defaultSort('published_at', 'desc')
             ->recordActions([

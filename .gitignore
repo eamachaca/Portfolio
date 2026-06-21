@@ -35,7 +35,7 @@ Thumbs.db
 # Comprala: https://themeforest.net/item/reframe-personal-one-page-portfolio-html-template/33840600
 # ===========================================================
 /public/reframe/
-/resources/views/theme/
+/resources/views/themes/reframe/
 /config/theme.php
 
 # Contexto para asistentes de IA (local, no versionar)

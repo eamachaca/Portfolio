@@ -8,10 +8,11 @@ use App\Models\Post;
 use App\Models\Project;
 use App\Models\Service;
 use App\Models\Skill;
+use App\Models\Strength;
 use App\Models\Study;
 use App\Models\Testimonial;
 use App\Models\User;
-use App\Support\SampleContent;
+use App\Models\WorkStyleItem;
 
 class PortfolioController extends Controller
 {
@@ -20,21 +21,7 @@ class PortfolioController extends Controller
      */
     public function home()
     {
-        $user = User::query()->first();
-
-        if (! $user) {
-            return view('theme.home', [
-                'user' => SampleContent::user(),
-                'featuredProjects' => SampleContent::projects()->take(3),
-                'studies' => SampleContent::studies(),
-                'experiences' => collect(),
-                'services' => collect(),
-                'skillsByCategory' => collect(),
-                'faqs' => collect(),
-                'testimonials' => collect(),
-                'recentPosts' => collect(),
-            ]);
-        }
+        $user = User::query()->firstOrFail();
 
         $featuredProjects = Project::query()
             ->with('experience')
@@ -88,9 +75,20 @@ class PortfolioController extends Controller
             ->take(3)
             ->get();
 
-        return view('theme.home', compact(
+        $strengths = Strength::query()
+            ->where('owner_id', $user->id)
+            ->orderBy('sort_order')
+            ->get();
+
+        $workStyleItems = WorkStyleItem::query()
+            ->where('owner_id', $user->id)
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('themes.reframe.home', compact(
             'user', 'featuredProjects', 'studies', 'experiences',
             'services', 'skillsByCategory', 'faqs', 'testimonials', 'recentPosts',
+            'strengths', 'workStyleItems',
         ));
     }
 }
