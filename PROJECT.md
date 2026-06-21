@@ -480,19 +480,38 @@ Seeders ejecutados por `db:seed`:
 > El front no se ve completo sin los assets de ReFrame en `public/reframe/`.
 > Adquirí la licencia y colocá los archivos manualmente.
 
-## 9. Deploy (cuando llegue producción)
+## 9. Deploy
 
-Patrón replicado del proyecto Gastos:
-- VPS Contabo (Ubuntu 24.04), PHP 8.4, MySQL 8, Redis, Nginx, Supervisor.
-- GitHub Actions: push a `main` → checkout, build de assets (`npm ci` +
-  `npm run build`), `rsync` del código al VPS (excluye `.env`, `vendor/`,
-  `node_modules/`, caches, sqlite). **Nunca `--delete`** en rsync — los
-  assets de ReFrame viven solo en el VPS, los borraría.
-- Por SSH como user `deploy`: `composer install --no-dev`,
-  `migrate --force`, `optimize:clear` + `config/route/view/event:cache`,
-  reload php-fpm, restart workers.
-- Secrets: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`. `concurrency` con
-  `cancel-in-progress: false`.
+Producción: **https://deito.dev** (apex + `www.deito.dev`, ambos con
+cert Let's Encrypt; `www` y HTTP redirigen a `https://deito.dev`).
+
+Stack en el VPS Contabo (Ubuntu 24.04, compartido con Gastos):
+PHP 8.4, MySQL 8, Redis, Nginx, Supervisor. App vive en
+`/var/www/portfolio/` (owner `deploy:deploy`). pool php-fpm corre como
+`deploy:deploy` (compartido entre proyectos del VPS).
+
+GitHub Actions (`.github/workflows/deploy.yml`): se dispara con
+**push a `main`** o manualmente desde la pestaña Actions. Steps:
+checkout, setup PHP 8.4 + Node 22, `composer validate`, `npm ci &&
+npm run build`, `rsync` al VPS (excluye `.env`, `vendor/`,
+`node_modules/`, caches, sqlite, `tests/`); por SSH como `deploy`
+corre `composer install --no-dev`, `migrate --force`,
+`optimize:clear` + `config/route/view/event:cache`, y reload de
+`php8.4-fpm`. **Nunca `--delete`** en rsync — los assets de ReFrame
+viven solo en el VPS (ver § 7), `--delete` los borraría.
+
+Secrets en el repo (`gh secret list`): `VPS_HOST`, `VPS_USER`,
+`VPS_SSH_KEY` (clave dedicada `portfolio_deploy_ed25519`, distinta de
+la personal de Eduardo). `concurrency: deploy-production` con
+`cancel-in-progress: false`.
+
+Credenciales DB en el VPS: `/etc/portfolio/db.creds` (chmod 600,
+owner `deploy`). Referenciadas por el `.env` de producción
+`/var/www/portfolio/.env` (no se rsynchea).
+
+Para subir los archivos licenciados de ReFrame al VPS por primera
+vez (o cuando se templariza algo nuevo), seguir
+`../DEPLOY-ASSETS.md` (workspace root, fuera del repo).
 
 ## 10. Convenciones
 

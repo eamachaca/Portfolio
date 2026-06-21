@@ -1,10 +1,8 @@
 name: Deploy portfolio (production)
 
-# Por ahora solo manual desde la pestana Actions de GitHub.
-# Cuando el VPS este configurado y los secrets cargados, agregar:
-#   push:
-#     branches: [main]
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
