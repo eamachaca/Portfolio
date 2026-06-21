@@ -482,8 +482,12 @@ Seeders ejecutados por `db:seed`:
 
 ## 9. Deploy
 
-Producción: **https://deito.dev** (apex + `www.deito.dev`, ambos con
-cert Let's Encrypt; `www` y HTTP redirigen a `https://deito.dev`).
+Producción: **https://deito.dev** (apex es la única versión canónica).
+`www.deito.dev` y todo HTTP devuelven 301 al apex (ambos hostnames
+cubiertos por el mismo cert Let's Encrypt). El redirect www→apex evita
+que Filament/Livewire genere URLs absolutas cross-origin cuando el
+visitante entra por www (los uploads de FilePond rompen con CORS si
+hay dos orígenes).
 
 Stack en el VPS Contabo (Ubuntu 24.04, compartido con Gastos):
 PHP 8.4, MySQL 8, Redis, Nginx, Supervisor. App vive en
