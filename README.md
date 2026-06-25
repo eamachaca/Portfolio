@@ -25,21 +25,25 @@ El diseño del front está construido sobre **ReFrame**, una plantilla **de pago
 de ThemeForest creada por su autor original. **No es software libre.**
 
 Por respeto al trabajo de su autor y porque **no estoy a favor de la piratería**,
-los archivos de la plantilla **no se incluyen en este repositorio**:
+**nada del theme se incluye en este repositorio**. Lo que queda fuera (todo en
+`.gitignore`):
 
-- Solo los **assets crudos** del theme (`public/reframe/`: CSS, JS, fuentes,
-  imágenes) están en `.gitignore`. Esa es la parte licenciada del autor.
-- Se despliegan por separado (scp/rsync), nunca vía este repo público.
-- Las **vistas Blade** (`resources/views/themes/reframe/`, con los `@foreach`/mapeo de datos)
-  **sí se versionan**: son código propio; ReFrame solo aporta el diseño estático.
+- `public/reframe/` — assets crudos del theme (CSS, JS, fuentes, imágenes).
+- `resources/views/themes/reframe/` — vistas Blade con el markup del theme.
+  Aunque tengan `@foreach`/mapeo de datos propio, el HTML/CSS sigue siendo
+  IP del autor.
+- `config/theme.php` — config con las keys privadas del theme.
+
+Todo eso se despliega por separado (`scp`/`rsync`), nunca vía este repo público.
+
+Lo que **sí** está versionado y es código propio: Laravel + Filament, modelos,
+controladores, migraciones, seeders, traducciones, lógica de negocio. Es lo que
+hace funcionar el portafolio — pero el "cómo se ve" no se redistribuye.
 
 Este proyecto **usa** ReFrame, pero **no lo redistribuye**. Si te gusta la
 plantilla y quieres usarla, **cómprala** directamente al autor:
 
 👉 https://themeforest.net/item/reframe-personal-one-page-portfolio-html-template/33840600
-
-El código de esta aplicación (Laravel, Filament, modelos, lógica) es propio y sí
-está en el repositorio. Lo que queda fuera es únicamente el diseño licenciado.
 
 ---
 
